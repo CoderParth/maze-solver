@@ -25,3 +25,15 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+.bg-gray-200 {
+  background-color: #edf2f7;
+}
+
+.start-point {
+  background-color: #48bb78;
+}
+
+.end-point {
+  background-color: #f56565;
+}
