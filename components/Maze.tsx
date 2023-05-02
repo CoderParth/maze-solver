@@ -10,15 +10,20 @@ type Props = {
   startPoint: CellCoords | null
   endPoint: CellCoords | null
   handleCellClick: (row: number, col: number) => void
+  path: CellCoords[]
 }
 
-const Maze = ({ maze, startPoint, endPoint, handleCellClick }: Props) => {
+const Maze = ({ maze, startPoint, endPoint, handleCellClick, path }: Props) => {
   const [pointsSet, setPointsSet] = useState(false)
 
   const handleClick = (row: number, col: number) => {
     if (!maze[row][col].isWall) {
       handleCellClick(row, col)
     }
+  }
+
+  const isPathCell = (x: number, y: number) => {
+    return path?.some((cell) => cell.x === x && cell.y === y)
   }
 
   return (
@@ -34,17 +39,20 @@ const Maze = ({ maze, startPoint, endPoint, handleCellClick }: Props) => {
           const isStartPoint =
             startPoint && startPoint.x === x && startPoint.y === y
           const isEndPoint = endPoint && endPoint.x === x && endPoint.y === y
-          const bgClass = cell.isWall ? "bg-black" : "bg-gray-200"
-          const fgClass = isStartPoint
+          const cellClass = cell.isWall
+            ? "bg-black"
+            : isStartPoint
             ? "bg-green-400"
             : isEndPoint
             ? "bg-red-400"
-            : ""
+            : isPathCell(x, y)
+            ? "bg-green-200"
+            : "bg-gray-200"
 
           return (
             <div
               key={`${x}-${y}`}
-              className={`h-6 w-6 ${bgClass} ${fgClass}`}
+              className={`h-6 w-6 ${cellClass}`}
               data-x={x}
               data-y={y}
               onClick={() => handleClick(y, x)}

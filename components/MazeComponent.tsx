@@ -17,8 +17,14 @@ function MazeSolver() {
 
   const [algorithm, setAlgorithm] = useState<"bfs" | "dfs">("bfs")
   const [pointsSet, setPointsSet] = useState(false)
+  const [path, setPath] = useState<CellCoords[]>([])
+  const [showDialog, setShowDialog] = useState(false)
 
-  const maze = useMemo(() => createMaze(numRows, numCols), [numRows, numCols])
+  const [mazeVersion, setMazeVersion] = useState(0)
+  const maze = useMemo(
+    () => createMaze(numRows, numCols),
+    [numRows, numCols, mazeVersion]
+  )
 
   const handleAlgorithmChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -29,10 +35,21 @@ function MazeSolver() {
   const handleCellClick = (row: number, col: number) => {
     if (!pointsSet) {
       if (!startPoint) {
-        setStartPoint({ x: col, y: row }) // Update to use CellCoords
+        setStartPoint({ x: col, y: row })
       } else if (!endPoint) {
-        setEndPoint({ x: col, y: row }) // Update to use CellCoords
+        setEndPoint({ x: col, y: row })
         setPointsSet(true)
+      }
+    } else {
+      const isStartPoint =
+        startPoint && startPoint.x === col && startPoint.y === row
+      const isEndPoint = endPoint && endPoint.x === col && endPoint.y === row
+
+      if (isStartPoint) {
+        setStartPoint(null)
+      } else if (isEndPoint) {
+        setEndPoint(null)
+        setPointsSet(false)
       }
     }
   }
@@ -40,17 +57,24 @@ function MazeSolver() {
   const handleStartClick = () => {
     if (startPoint && endPoint) {
       const pathFinder = algorithm === "bfs" ? bfs : dfs
-      const path = pathFinder(maze, startPoint, endPoint)
-      console.log(path)
-      // Update the maze with the path
+      const foundPath = pathFinder(maze, startPoint, endPoint)
+      console.log(foundPath)
+      setPath(foundPath)
+
+      if (foundPath.length === 0) {
+        setShowDialog(true)
+      } else {
+        setShowDialog(false)
+      }
     }
   }
 
   const handleResetClick = () => {
     setStartPoint(null)
     setEndPoint(null)
+    setPath([])
     setPointsSet(false)
-    // Reset the maze
+    setMazeVersion((prevVersion) => prevVersion + 1) // Generate a new maze
   }
 
   return (
@@ -94,18 +118,55 @@ function MazeSolver() {
               startPoint={startPoint}
               endPoint={endPoint}
               handleCellClick={handleCellClick}
+              path={path}
             />
           </div>
         </div>
         <div className="py-4">
-          <p>
-            First select the algorithm. Then click on a white cell to create the
-            starting point. Click again to create the end point. After that
-            click on "Start" button. Maze will be solved. Press reset to clear
-            the maze.
-          </p>
+          <ol>
+            <li>Select the desired algorithm from the dropdown menu.</li>
+            <li>Click on a white cell to set the starting point.</li>
+            <li>Click on another white cell to set the end point.</li>
+            <li>Press the "Start" button to solve the maze.</li>
+            <li>
+              To compare results, change the algorithm from the dropdown menu
+              and press "Start" again.
+            </li>
+            <li>
+              If you wish to clear the maze and start over, press the "Reset"
+              button.
+            </li>
+          </ol>
         </div>
       </div>
+      {showDialog && (
+        <div className="fixed z-10 inset-0 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+            <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+              <div>
+                <h3 className="text-lg leading-6 font-medium text-gray-900">
+                  Path not found
+                </h3>
+                <div className="mt-2">
+                  <p className="text-sm text-gray-500">
+                    The algorithm couldn't find a path between the start and end
+                    points.
+                  </p>
+                </div>
+                <div className="mt-5 sm:mt-6">
+                  <button
+                    onClick={() => setShowDialog(false)}
+                    className="inline-flex justify-center w-full rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:text-sm"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
