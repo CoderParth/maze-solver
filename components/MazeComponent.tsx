@@ -21,6 +21,8 @@ function MazeSolver() {
   const [showDialog, setShowDialog] = useState(false)
 
   const [mazeVersion, setMazeVersion] = useState(0)
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const maze = useMemo(
     () => createMaze(numRows, numCols),
     [numRows, numCols, mazeVersion]
@@ -127,14 +129,14 @@ function MazeSolver() {
             <li>Select the desired algorithm from the dropdown menu.</li>
             <li>Click on a white cell to set the starting point.</li>
             <li>Click on another white cell to set the end point.</li>
-            <li>Press the "Start" button to solve the maze.</li>
+            <li>Press the &quot;Start&quot; button to solve the maze.</li>
             <li>
               To compare results, change the algorithm from the dropdown menu
-              and press "Start" again.
+              and press &quot;Start&quot; again.
             </li>
             <li>
-              If you wish to clear the maze and start over, press the "Reset"
-              button.
+              If you wish to clear the maze and start over, press the
+              &quot;Start&quot; again.
             </li>
           </ol>
         </div>
@@ -150,8 +152,8 @@ function MazeSolver() {
                 </h3>
                 <div className="mt-2">
                   <p className="text-sm text-gray-500">
-                    The algorithm couldn't find a path between the start and end
-                    points.
+                    The algorithm could not find a path between the start and
+                    end points.
                   </p>
                 </div>
                 <div className="mt-5 sm:mt-6">
